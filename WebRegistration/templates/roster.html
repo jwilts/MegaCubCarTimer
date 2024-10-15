@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Roster</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ecf0f1;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 90%;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative; /* Ensures relative positioning for the logo */
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .logo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 100px;
+            height: auto;
+        }
+        .btn-strip {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #d4efdf;
+            border-radius: 8px;
+        }
+        .btn-strip a {
+            color: white;
+            text-decoration: none;
+            background-color: #27ae60;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-strip a:hover {
+            background-color: #1e8449;
+        }
+        .filter-box {
+            margin-bottom: 20px;
+            text-align: right;
+            width: 100%;
+        }
+        .filter-box input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 16px;
+        }
+        td {
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        /* New styles for larger, brighter checkboxes */
+        .checkbox-container input[type="checkbox"] {
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            accent-color: #27ae60; /* Bright green color */
+        }
+
+        .checkbox-container {
+            text-align: center;
+            padding: 5px;
+        }
+    </style>
+    <script>
+        function filterRacers() {
+            const filter = document.getElementById('filter-input').value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const firstName = row.children[0].textContent.toLowerCase();
+                const lastName = row.children[1].textContent.toLowerCase();
+                const carName = row.children[2].textContent.toLowerCase();
+                const packName = row.children[3].textContent.toLowerCase();
+                const rfid = row.children[4].textContent.toLowerCase();
+
+                if (firstName.includes(filter) || lastName.includes(filter) || carName.includes(filter) || packName.includes(filter) || rfid.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <img src="{{ url_for('static', filename='HiRes1stB.png') }}" alt="1st Beamsville Logo" class="logo">
+    <h1>Race Roster</h1>
+
+    <!-- Button Strip -->
+    <div class="btn-strip">
+        <a href="{{ url_for('manage_racer') }}">Add Racer</a>
+        <a href="{{ url_for('manage_trackheats') }}">Manage Heats</a>
+        <a href="{{ url_for('list_views') }}">Views/Reports</a>
+        <a href="{{ url_for('index') }}">Log Issues</a>
+        <a href="{{ url_for('race_tracker') }}">Race Results</a>
+    </div>
+
+    <!-- Filter Box -->
+    <div class="filter-box">
+        <input type="text" id="filter-input" onkeyup="filterRacers()" placeholder="Search by First Name, Last Name, Car Name, Pack, or RFID...">
+    </div>
+
+    <!-- Race Roster Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Car Name</th>
+                <th>Car Checked</th> <!-- New Column -->
+                <th>Include</th> <!-- New Column -->
+                <th>Pack</th>
+                <th>RFID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for racer in racers %}
+            <tr>
+                <td>{{ racer.RacerFirstName }}</td>
+                <td>{{ racer.RacerLastName }}</td>
+                <td>{{ racer.RacerCarName or 'N/A' }}</td>
+
+                <!-- Car Checked Checkbox -->
+                <td class="checkbox-container">
+                    <input type="checkbox" disabled 
+                           {% if racer.RacerCarChecked %}checked{% endif %}>
+                </td>
+
+                <!-- Include Checkbox -->
+                <td class="checkbox-container">
+                    <input type="checkbox" disabled 
+                           {% if racer.RacerInclude %}checked{% endif %}>
+                </td>
+
+                <td>{{ racer.PackName or 'N/A' }}</td>
+                <td>{{ racer.RacerRFID }}</td>
+                <td>
+                    <a href="{{ url_for('manage_racer', racer_id=racer.RacerID) }}">Edit</a> |
+                    <a href="{{ url_for('racer_results', racer_id=racer.RacerID) }}">View Race Results</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
+

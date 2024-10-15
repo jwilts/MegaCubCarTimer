@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <h1>Select and View Data</h1>
+
+    <!-- Form to select a view -->
+    <form method="POST">
+        {{ form.csrf_token }}  <!-- Include the CSRF token -->
+        <label for="view_name">Select a view:</label>
+        <select name="view_name" id="view_name" required>
+            <option value="" disabled selected>Select a view</option>
+            {% for view in views %}
+            <option value="{{ view[0] }}" {% if selected_view == view[0] %}selected{% endif %}>{{ view[0] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Show Data</button>
+    </form>
+
+    <!-- Table to display the results if any view is selected -->
+    {% if selected_view and results %}
+        <h2>Results for View: {{ selected_view }}</h2>
+        <table border="1" cellspacing="0" cellpadding="5">
+            <thead>
+                <tr>
+                    {% for column in columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in results %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Option to export the current view to an Excel file -->
+        <form action="{{ url_for('export_view', view_name=selected_view) }}" method="GET">
+            <button type="submit">Export to Excel</button>
+        </form>
+    {% endif %}
+
+    <a href="{{ url_for('roster') }}">Return to Roster</a>
+
+</body>
+</html>
+

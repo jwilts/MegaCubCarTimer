@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Track Heats</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #27ae60;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .submit-button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: #219150;
+        }
+        .back-button {
+            display: inline-block;
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #1b2d3e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Track Heats</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Track Name</th>
+                    <th>Previous Heat</th>
+                    <th>New Heat</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for track in trackinfo_entries %}
+                <tr>
+                    <td>{{ track.TrackName }}</td>
+                    <td>{{ track.Heat }}</td> <!-- Previous Heat -->
+                    <td>
+                        <form method="POST">
+                            {{ form.hidden_tag() }} <!-- CSRF token -->
+                            <input type="hidden" name="track_id" value="{{ track.TrackID }}">
+                            <input type="number" name="heat" value="{{ track.Heat }}" min="1" required>
+                            <button type="submit" class="submit-button">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('roster') }}" class="back-button">Return to Roster</a>
+    </div>
+</body>
+</html>
+

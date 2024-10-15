@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Racer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .mandatory {
+            color: red;
+        }
+        .btn, .btn-link {
+            background-color: #27ae60;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .btn:hover, .btn-link:hover {
+            background-color: #219150;
+        }
+        .btn-small {
+            background-color: #7f8c8d;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 5px;
+            text-align: center;
+        }
+        .btn-small:hover {
+            background-color: #566573;
+        }
+        .group-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .group-container .form-group {
+            flex: 1 1 45%;
+            margin-right: 10px;
+        }
+        .group-container .form-group:nth-child(odd) {
+            margin-right: 0;
+        }
+        .header-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #27ae60;
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .header-info img {
+            max-width: 300px;
+            border-radius: 8px;
+        }
+        .back-button {
+            background-color: #7f8c8d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #566573;
+        }
+        .form-checkbox-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .choose-file-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Manage Racer</h1>
+
+    <form action="{{ url_for('manage_racer', racer_id=racer.RacerID if racer else None) }}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="header-info">
+            <h2>Racer Photo</h2>
+            {% if racer and racer.RacerPhoto %}
+                <img src="{{ url_for('static', filename='uploads/' + racer.RacerPhoto) }}" alt="Racer Photo" class="image-preview" id="imagePreview">
+            {% else %}
+                <img src="{{ url_for('static', filename='uploads/default.png') }}" alt="No Photo" class="image-preview" id="imagePreview">
+            {% endif %}
+        </div>
+
+        <div class="choose-file-container">
+            <input type="file" id="RacerPhoto" name="RacerPhoto" accept="image/*" onchange="previewImage(event)">
+        </div>
+
+        <div class="group-container">
+            <div class="form-group">
+                <label for="RacerFirstName">First Name <span class="mandatory">*</span></label>
+                <input type="text" id="RacerFirstName" name="RacerFirstName" value="{{ racer.RacerFirstName if racer else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="RacerLastName">Last Name <span class="mandatory">*</span></label>
+                <input type="text" id="RacerLastName" name="RacerLastName" value="{{ racer.RacerLastName if racer else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="RacerCarName">Car Name <span class="mandatory">*</span></label>
+                <input type="text" id="RacerCarName" name="RacerCarName" value="{{ racer.RacerCarName if racer else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="RacerPack">Pack <span class="mandatory">*</span></label>
+                <select id="RacerPack" name="RacerPack" required>
+                    <option value="">-- Select Pack --</option>
+                    {% for pack in packs %}
+                        <option value="{{ pack.ID }}" {% if racer and racer.RacerPack == pack.ID %}selected{% endif %}>{{ pack.PackName }}</option>
+                    {% endfor %}
+                </select>
+                <a href="{{ url_for('add_pack') }}" class="btn-small">Add New Pack</a>
+            </div>
+        </div>
+
+        <div class="group-container">
+            <div class="form-group">
+                <label for="RacerRFID">RFID</label>
+                <input type="text" id="RacerRFID" name="RacerRFID" value="{{ racer.RacerRFID if racer else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="RacerCarNumber">Car Number</label>
+                <input type="number" id="RacerCarNumber" name="RacerCarNumber" value="{{ racer.RacerCarNumber if racer else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="RacerCarWeight">Car Weight</label>
+                <input type="number" id="RacerCarWeight" name="RacerCarWeight" step="0.01" value="{{ racer.RacerCarWeight if racer else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="RacerCarClass">Weight Class</label>
+                <select id="RacerCarClass" name="RacerCarClass">
+                    <option value="">-- Select Class --</option>
+                    {% for raceclass in raceclasses %}
+                        <option value="{{ raceclass.ClassID }}" {% if racer and racer.RacerCarClass == raceclass.ClassID %}selected{% endif %}>{{ raceclass.ClassDescription }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="group-container">
+            <div class="form-group">
+                <label for="pit_crew_name">Pit Crew Member:</label>
+                <select id="pit_crew_name" name="pit_crew_name">
+                    <option value="">-- Select Pit Crew --</option>
+                    {% for member in pit_crews %}
+                        <option value="{{ member.ID }}" 
+                                {% if racer and racer.RacerPitCrewName == member.ID %}selected{% endif %}>
+                            {{ member.PitCrewMemberName }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <a href="{{ url_for('add_pitcrew') }}" class="btn-small">Add New Pit Crew</a>
+            </div>
+        </div>
+
+        <!-- New Container for Checkboxes -->
+        <div class="form-group" style="display: flex; justify-content: space-between; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+            <div>
+                <label>
+                    <input type="checkbox" name="car_checked" 
+                           {% if racer and racer.RacerCarChecked %}checked{% endif %}>
+                    Car Checked
+                </label>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" name="include_racer" 
+                           {% if not racer or racer.RacerInclude %}checked{% endif %}>
+                    Include Racer
+                </label>
+            </div>
+        </div>
+
+
+
+
+
+
+        <button type="submit" class="btn">Save Racer</button>
+        <a href="{{ url_for('roster') }}" class="back-button">Back to Roster</a>
+    </form>
+</div>
+
+<script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('imagePreview');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+
+
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Photo</title>
+    <script>
+        function previewFile() {
+            const preview = document.getElementById('preview');
+            const file = document.getElementById('photo').files[0];
+            const reader = new FileReader();
+
+            reader.addEventListener("load", function () {
+                // Convert file to base64 string and display it
+                preview.src = reader.result;
+            }, false);
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Upload Racer Photo</h1>
+
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li style="color:green;">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}  <!-- CSRF Token -->
+        <label for="photo">Select photo to upload:</label>
+        <input type="file" id="photo" name="photo" accept="image/*" onchange="previewFile()" required>
+        <br><br>
+        <img id="preview" src="" alt="Image preview" style="max-width: 300px; max-height: 300px; display: none;">
+        <br><br>
+        <input type="submit" value="Upload Photo">
+    </form>
+
+    <script>
+        // Show the preview container only if there is an image
+        document.getElementById('photo').addEventListener('change', function() {
+            const preview = document.getElementById('preview');
+            if (this.files.length > 0) {
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

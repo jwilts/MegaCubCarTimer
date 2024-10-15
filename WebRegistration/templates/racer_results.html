@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ racer.RacerFirstName }} {{ racer.RacerLastName }} - Race Results</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif';
+            background-color: #ecf0f1;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 90%;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .header-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #27ae60;
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .header-info h2 {
+            margin: 5px 0;
+        }
+        .car-image {
+            max-width: 150px;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        h3 {
+            color: #27ae60;
+            font-size: 22px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 16px;
+        }
+        td {
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .back-button {
+            display: inline-block;
+            background-color: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #219150;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ racer.RacerFirstName }} {{ racer.RacerLastName }} - Race Results</h1>
+
+        <!-- Header section for Car Name, Pack Name, and Car Image -->
+        <div class="header-info">
+            <h2>Car Name: {{ racer.RacerCarName }}</h2> <!-- Car Name -->
+            <h2>Pack Name: {{ pack_name }}</h2> <!-- Pack Name -->
+
+            <!-- Display the car image if it exists -->
+            {% if racer.RacerPhoto %}
+            <img src="{{ url_for('static', filename='uploads/' ~ racer.RacerPhoto) }}" alt="Car Image" class="car-image">
+            {% else %}
+            <p>No car image available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Grouped results by Heat and Track -->
+        {% for group, races in grouped_results.items() %}
+        <h3>{{ group }}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Lane</th>
+                    <th>Race Time</th>
+                    <th>Placing</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for race in races %}
+                <tr>
+                    <td>{{ race.Lane }}</td>
+                    <td>{{ race.RaceTime }}</td>
+                    <td>{{ race.Placing }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+        
+        <a href="{{ url_for('roster') }}" class="back-button">Back to Roster</a>
+
+        <div class="footer">
+            &copy; {{ current_year }} Cubcar Web App - All Rights Reserved
+        </div>
+    </div>
+</body>
+</html>
+

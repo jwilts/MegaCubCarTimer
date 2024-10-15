@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Racer</title>
+    <style>
+        label, input, select, button {
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add New Racer</h1>
+
+    <form action="{{ url_for('add_racer') }}" method="POST">
+        <label for="RacerFirstName">First Name:</label>
+        <input type="text" id="RacerFirstName" name="RacerFirstName" required>
+
+        <label for="RacerLastName">Last Name:</label>
+        <input type="text" id="RacerLastName" name="RacerLastName" required>
+
+        <label for="RacerPack">Pack:</label>
+        <select id="RacerPack" name="RacerPack" required>
+            {% for pack in packs %}
+                <option value="{{ pack.ID }}">{{ pack.PackName }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" onclick="document.getElementById('newPackForm').style.display='block'">Add New Pack</button>
+
+        <div id="newPackForm" style="display:none;">
+            <h3>Add New Pack</h3>
+            <label for="newPackName">Pack Name:</label>
+            <input type="text" id="newPackName" name="newPackName">
+            <button type="button" onclick="addNewPack()">Submit Pack</button>
+        </div>
+
+        <label for="RacerRFID">RFID:</label>
+        <input type="text" id="RacerRFID" name="RacerRFID" required>
+
+        <label for="RacerCarName">Car Name:</label>
+        <input type="text" id="RacerCarName" name="RacerCarName" required>
+
+        <label for="RacerCarNumber">Car Number:</label>
+        <input type="number" id="RacerCarNumber" name="RacerCarNumber" required>
+
+        <label for="RacerInclude">Include in Race (1 or 0):</label>
+        <input type="number" id="RacerInclude" name="RacerInclude" required>
+
+        <label for="RacerCarChecked">Car Checked:</label>
+        <input type="checkbox" id="RacerCarChecked" name="RacerCarChecked">
+
+        <label for="RacerPitCrewName">Pit Crew:</label>
+        <select id="RacerPitCrewName" name="RacerPitCrewName" required>
+            {% for crew in pit_crews %}
+                <option value="{{ crew.ID }}">{{ crew.PitCrewMemberName }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" onclick="document.getElementById('newCrewForm').style.display='block'">Add New Pit Crew</button>
+
+        <div id="newCrewForm" style="display:none;">
+            <h3>Add New Pit Crew Member</h3>
+            <label for="newCrewName">Pit Crew Member Name:</label>
+            <input type="text" id="newCrewName" name="newCrewName">
+            <button type="button" onclick="addNewCrew()">Submit Crew Member</button>
+        </div>
+
+        <label for="RacerCarWeight">Car Weight:</label>
+        <input type="number" step="0.01" id="RacerCarWeight" name="RacerCarWeight" required>
+
+        <label for="RacerCarClass">Car Class:</label>
+        <input type="number" id="RacerCarClass" name="RacerCarClass" required>
+
+        <button type="submit">Add Racer</button>
+    </form>
+
+    <script>
+        function addNewPack() {
+            const newPackName = document.getElementById("newPackName").value;
+            fetch('{{ url_for("add_pack") }}', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ PackName: newPackName }),
+            }).then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                    const select = document.getElementById("RacerPack");
+                    const option = document.createElement("option");
+                    option.value = data.pack_id;
+                    option.text = newPackName;
+                    select.add(option);
+                    document.getElementById("newPackForm").style.display = "none";
+                }
+            });
+        }
+
+        function addNewCrew() {
+            const newCrewName = document.getElementById("newCrewName").value;
+            fetch('{{ url_for("add_pitcrew") }}', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ PitCrewMemberName: newCrewName }),
+            }).then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                    const select = document.getElementById("RacerPitCrewName");
+                    const option = document.createElement("option");
+                    option.value = data.crew_id;
+                    option.text = newCrewName;
+                    select.add(option);
+                    document.getElementById("newCrewForm").style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
